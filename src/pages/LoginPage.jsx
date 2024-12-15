@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Link } from "react-router-dom";
+import logo from "../assets/image.png";
 
 const LoginPage = () => {
   return (
@@ -8,8 +8,10 @@ const LoginPage = () => {
         {/* 로고 섹션 */}
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2">
-            <Heart size={32} className="text-red-600" />
-            <h2 className="text-2xl font-bold text-gray-900">현혈증 기부 시스템</h2>
+            <img src={logo} alt="로고" className="h-8 w-8" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              현혈증 기부 시스템
+            </h2>
           </Link>
           <p className="mt-2 text-sm text-gray-600">
             로그인하여 현혈증 기부를 시작해보세요
@@ -20,7 +22,9 @@ const LoginPage = () => {
         <form className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="sr-only">이메일</label>
+              <label htmlFor="email" className="sr-only">
+                이메일
+              </label>
               <input
                 id="email"
                 name="email"
@@ -31,7 +35,9 @@ const LoginPage = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">비밀번호</label>
+              <label htmlFor="password" className="sr-only">
+                비밀번호
+              </label>
               <input
                 id="password"
                 name="password"
@@ -51,13 +57,19 @@ const LoginPage = () => {
                 type="checkbox"
                 className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
                 로그인 상태 유지
               </label>
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-red-600 hover:text-red-500">
+              <a
+                href="#"
+                className="font-medium text-red-600 hover:text-red-500"
+              >
                 비밀번호 찾기
               </a>
             </div>
@@ -101,8 +113,13 @@ const LoginPage = () => {
 
         {/* 회원가입 링크 */}
         <div className="text-center">
-          <span className="text-sm text-gray-600">아직 회원이 아니신가요? </span>
-          <Link to="/signup" className="text-sm font-medium text-red-600 hover:text-red-500">
+          <span className="text-sm text-gray-600">
+            아직 회원이 아니신가요?{" "}
+          </span>
+          <Link
+            to="/signup"
+            className="text-sm font-medium text-red-600 hover:text-red-500"
+          >
             회원가입
           </Link>
         </div>
