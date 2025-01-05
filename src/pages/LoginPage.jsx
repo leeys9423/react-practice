@@ -128,7 +128,7 @@ const LoginPage = () => {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         {/* 소셜 로그인 */}
-        <div className="mt-8">
+        {/* <div className="mt-8">
           <div className="text-center text-sm text-gray-500 mb-4">
             소셜 계정으로 로그인
           </div>
@@ -141,7 +141,7 @@ const LoginPage = () => {
               />
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* 회원가입 링크 */}
         <div className="text-center">
