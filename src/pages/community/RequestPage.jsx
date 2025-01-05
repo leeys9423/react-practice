@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CommunitySideBar from "../../components/wrapper/CommunitySideBar";
-import axios from "axios"; // axios 임포트
+import api from "../../lib/axios";
 
-const url = 'https://2c065562-04c8-4d72-8c5a-4e4289daa4b5.mock.pstmn.io/request';
+const url = "/requests";
 const PAGE_SIZE = 10; // 페이지 크기 상수화
 
 const RequestPage = () => {
@@ -12,14 +12,18 @@ const RequestPage = () => {
   const [requests, setRequests] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [userId, setUserId] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${url}?page=${page - 1}&size=${PAGE_SIZE}`);
-        setRequests(response.data.requests); // requests 배열 설정
+        const response = await api.get(
+          `${url}?page=${page}&size=${PAGE_SIZE}&sort=NEW&option=&startDate=&endDate=`
+        );
+        setRequests(response.data.content); // requests 배열 설정
         setTotalPages(response.data.totalPages); // 전체 페이지 수 설정
         setTotalElements(response.data.totalElements); // 전체 요청 수 설정
+        setUserId(response.data.userId);
       } catch (error) {
         console.error("데이터를 가져오는 중 오류 발생: ", error);
       }
@@ -30,7 +34,7 @@ const RequestPage = () => {
 
   // 현재 페이지 그룹 계산을 위한 상수
   const PAGE_GROUP_SIZE = 10;
-  const currentGroup = Math.floor((page - 1) / PAGE_GROUP_SIZE);
+  const currentGroup = Math.floor(page / PAGE_GROUP_SIZE);
   const startPage = currentGroup * PAGE_GROUP_SIZE + 1;
   const endPage = Math.min(startPage + PAGE_GROUP_SIZE - 1, totalPages);
 
@@ -55,8 +59,19 @@ const RequestPage = () => {
     }
   };
 
-  const handleRequestWrite = () => {
-    navigate("/community/request/write");
+  const handleRequestWrite = async() => {
+    try {
+      const response = await api.get(`/write/requests`);
+      console.log(response.status);
+      navigate("/community/request/write");
+    } catch (error) {
+      if (error.response.status === 403){
+        alert("로그인이 필요합니다");
+      } else {
+        console.error("권한 확인 중 오류 : ", error);
+        alert("권한 확인 중 오류가 발생했습니다")
+      }
+    }
   };
 
   return (
@@ -69,25 +84,57 @@ const RequestPage = () => {
 
             <div className="border rounded-lg">
               <div className="flex bg-gray-50 py-3 border-b">
-                <div className="w-16 text-center text-sm font-medium text-gray-500">번호</div>
-                <div className="flex-1 px-6 text-center text-sm font-medium text-gray-500">제목</div>
-                <div className="w-24 text-center text-sm font-medium text-gray-500">작성일</div>
-                <div className="w-20 text-center text-sm font-medium text-gray-500">조회수</div>
+                <div className="w-24 text-center text-sm font-medium text-gray-500">
+                  번호
+                </div>
+                <div className="flex-1 px-6 pl-1 text-center text-sm font-medium text-gray-500">
+                  제목
+                </div>
+                <div className="w-36 text-center text-sm font-medium text-gray-500">
+                  작성자
+                </div>
+                <div className="w-36 text-center text-sm font-medium text-gray-500">
+                  작성일
+                </div>
+                <div className="w-36 text-center text-sm font-medium text-gray-500">
+                  상태
+                </div>
+                <div className="w-24 text-center text-sm font-medium text-gray-500">
+                  조회
+                </div>
+                <div className="w-24 text-center text-sm font-medium text-gray-500">
+                  추천
+                </div>
               </div>
 
               <div className="divide-y">
-                {requests.map((request) => (
-                  <div key={request.id} className="flex items-center py-3 hover:bg-gray-50">
-                    <div className="w-16 text-center text-sm text-gray-500">{request.id}</div>
+                {requests.length > 0 ? (
+                  requests.map((request) => (
+                    <div key={request.requestId} className="flex items-center py-3 hover:bg-gray-50">
+                    <div className="w-24 text-center text-sm text-gray-500">{request.requestId}</div>
                     <div className="flex-1 px-6">
-                      <Link to={`/community/request/${request.id}`} className="text-gray-900 hover:text-red-600">
-                        {request.title}
+                      <Link to={`/community/request/${request.requestId}`} className="text-gray-900 hover:text-red-600">
+                        {request.requestTitle}
                       </Link>
                     </div>
-                    <div className="w-24 text-center text-sm text-gray-500">{new Date(request.date).toLocaleDateString()}</div>
-                    <div className="w-20 text-center text-sm text-gray-500">{request.views}</div>
+                    <div className="w-36 text-center text-sm text-gray-500">{request.userName}</div>
+                    <div className="w-36 text-center text-sm text-gray-500">{request.requestDate}</div>
+                    <div className={`w-36 text-center text-sm ${request.progress === "진행중" ? 'text-blue-500' : 'text-gray-500'}`}>
+                      {request.progress}
+                      </div>
+                      <div className="w-24 text-center text-sm text-gray-500">
+                        {request.requestHits}
+                      </div>
+                      <div className="w-24 text-center text-sm text-gray-500">
+                        {request.requestLikes}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex justify-center items-center py-20 text-gray-500">
+                    등록된 게시물이 없습니다.
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -113,10 +160,11 @@ const RequestPage = () => {
                     <button
                       key={pageNum}
                       onClick={() => handlePageChange(pageNum)}
-                      className={`px-3 py-1 border rounded ${pageNum === page
+                      className={`px-3 py-1 border rounded ${
+                        pageNum === page
                           ? "bg-red-600 text-white"
                           : "hover:bg-gray-50"
-                        }`}
+                      }`}
                     >
                       {pageNum}
                     </button>
